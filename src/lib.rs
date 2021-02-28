@@ -75,9 +75,7 @@ impl BigInt {
 
     /// If both are equal, returns a
     pub fn max<'a>(a: &'a BigInt, b: &'a BigInt) -> &'a BigInt {
-        if a > b {
-            a
-        } else if b > a {
+        if b > a {
             b
         } else {
             a
@@ -86,9 +84,7 @@ impl BigInt {
 
     /// If both are equal, returns a
     pub fn min<'a>(a: &'a BigInt, b: &'a BigInt) -> &'a BigInt {
-        if a < b {
-            a
-        } else if b < a {
+        if b < a {
             b
         } else {
             a
@@ -426,4 +422,36 @@ mod tests {
             diff_significands_b_gt_a => ("1_337", "21_359", "21359"),
         );
     }
+
+    mod bigint_min {
+        use super::*;
+
+        macro_rules! bigint_min_tests {
+            ($($name:ident=>$value:expr,)*) => {
+                $(
+                    #[test]
+                    fn $name() {
+                        let a = BigInt::from_str($value.0);
+                        let b = BigInt::from_str($value.1);
+                        let max = BigInt::min(&a,&b);
+                        assert_eq!($value.2, max.to_string());
+                    }
+                )*
+            };
+        }
+
+        bigint_min_tests!(
+            both_neg_a_is_min => ("-2534", "-2414", "-2534"),
+            both_neg_b_is_min => ("-233_400", "-233_439", "-233439"),
+            equal_except_a_is_neg => ("-2334", "2334", "-2334"),
+            equal_except_b_is_neg => ("2334", "-2334", "-2334"),
+            same_significands_a_gt_b => ("2337", "1337", "1337"),
+            same_significands_b_gt_a => ("1337", "2337", "1337"),
+            same_significands_last_digit_differs_a_gt_b => ("1338", "1337", "1337"),
+            same_significands_last_digit_differs_b_gt_a => ("1337", "1338", "1337"),
+            diff_significands_a_gt_b => ("9_870_000", "12_222", "12222"),
+            diff_significands_b_gt_a => ("1_337", "21_359", "1337"),
+        );
+    }
 }
+
